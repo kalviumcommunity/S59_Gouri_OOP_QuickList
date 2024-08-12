@@ -11,19 +11,19 @@ class Task {
     Task(string name):taskName(name),isTaskCompleted(false){}
 
     void setIsTaskCompleted(){
-        isTaskCompleted=true;
+        this->isTaskCompleted=true;
     }
 
     void setTask(string newTaskName){
-        taskName=newTaskName;
+       this-> taskName=newTaskName;
     }
 
     string getTaskName() const{
-        return taskName;
+        return this->taskName;
     }
 
     bool getTaskStatus() const{
-        return isTaskCompleted;
+        return this->isTaskCompleted;
     }
 };
 
@@ -63,7 +63,7 @@ int main() {
     
     Task task1("Complete milestones!");
     cout << task1.getTaskName() << endl;
-    cout << task1.getTaskStatus() << endl;
+    cout << (task1.getTaskStatus()? "Completed":"Not Completed") << endl;
 
     return 0;
 }
