@@ -53,7 +53,20 @@ void addTask(string taskName) {
 };
 
 int main() {
-    //ToDoList class
+
+     Task taskArray[3] = {
+        Task("Task 1: Complete till Milestone 13 in Simulated Work"),
+        Task("Task 2: Complete LeetCode problems"),
+        Task("Task 3: write the journal ")
+        };
+
+     cout << "Tasks from Array of Objects:" << endl;
+    for (int i = 0; i < 3; i++)
+    {
+     cout << taskArray[i].getTaskName() << " [Completed: " << (taskArray[i].getTaskStatus() ? "Yes" : "No") << "]" << endl;
+    }
+
+    
     ToDoList myList;
     myList.addTask("Complete OOPs Assignment");
     myList.addTask("Complete all backlogs");
@@ -61,9 +74,9 @@ int main() {
     cout << "Tasks:" << endl;
     myList.viewTasks();
     
-    Task task1("Complete milestones!");
-    cout << task1.getTaskName() << endl;
-    cout << (task1.getTaskStatus()? "Completed":"Not Completed") << endl;
+    // Task task1("Complete milestones!");
+    // cout << task1.getTaskName() << endl;
+    // cout << (task1.getTaskStatus()? "Completed":"Not Completed") << endl;
 
     return 0;
 }
