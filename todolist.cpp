@@ -2,78 +2,156 @@
 #include <vector>
 using namespace std;
 
-class Task {
-    private:
+class Task
+{
+private:
     string taskName;
     bool isTaskCompleted;
 
-    public:
-    Task(string name):taskName(name),isTaskCompleted(false){}
-
-    void setIsTaskCompleted(){
-        this->isTaskCompleted=true;
+public:
+    // Task(string name):taskName(name),isTaskCompleted(false){}
+    Task(string taskName)
+    {
+        this->taskName = taskName;
+        this->isTaskCompleted = false;
     }
 
-    void setTask(string newTaskName){
-       this-> taskName=newTaskName;
+    void setIsTaskCompleted()
+    {
+        if (!this->isTaskCompleted){
+        this->isTaskCompleted = true;
+        }
     }
 
-    string getTaskName() const{
+    void setTask(string newTaskName)
+    {
+        this->taskName = newTaskName;
+    }
+
+    string getTaskName() const
+    {
         return this->taskName;
     }
 
-    bool getTaskStatus() const{
+    bool getTaskStatus() const
+    {
         return this->isTaskCompleted;
-    }
+    }    
 };
 
-class ToDoList {
+class ToDoList
+{
 private:
-    vector<Task> tasks;
+    vector<Task *> tasks;
+    static int totalTasks;
+    static int totalTasksCompleted;
+    static int totalTasksPending;
 
 public:
-void addTask(string taskName) {
-        Task newTask(taskName);
+    void addTask(string taskName)
+    {
+        Task *newTask = new Task(taskName);
         tasks.push_back(newTask);
+        totalTasks++;
+        totalTasksPending++;
     }
 
-    void deleteTask(int index) {
-        if (index >= 0 && index < tasks.size()) {
+    void deleteTask(int index)
+    {
+        if (index >= 0 && index < tasks.size())
+        {
+             if (tasks[index]->getTaskStatus()) {  
+                totalTasksCompleted--;            
+            } else {
+                totalTasksPending--;              
+            }
+            totalTasks--;
+            delete (tasks[index]);
             tasks.erase(tasks.begin() + index);
-        } else {
+        }
+        else
+        {
             cout << "Invalid index" << endl;
         }
+
+
     }
 
-    void viewTasks() const {
-        for (int i = 0; i < tasks.size(); i++) {
-            cout << i + 1 << ". " << tasks[i].getTaskName()  << " [Completed: " << (tasks[i].getTaskStatus() ? "Yes" : "No") << "]" << endl;
+    void markTaskCompleted(int index) {
+        if (index >= 0 && index < tasks.size() && !tasks[index]->getTaskStatus()) {
+            tasks[index]->setIsTaskCompleted();  
+            totalTasksCompleted++;               
+            totalTasksPending--;                 
+        } else {
+            cout << "Invalid index or task already completed" << endl; 
         }
+    }
+
+    void viewTasks() const
+    {
+        int i = 0;
+        for (Task *task : tasks)
+        {
+            cout << i + 1 << ". " << task->getTaskName() << " [Completed: " << (task->getTaskStatus() ? "Yes" : "No") << "]" << endl;
+            i++;
+        }
+    }
+
+     static int getTotalTasks()
+    {
+        return totalTasks;
+    }
+
+    static int getTotalTasksCompleted()
+    {
+        return totalTasksCompleted;
+    }
+
+    static int getTotalTasksPending()
+    {
+        return totalTasksPending;
     }
 };
 
-int main() {
+int ToDoList::totalTasks = 0;
+int ToDoList::totalTasksCompleted = 0;
+int ToDoList::totalTasksPending = 0;
 
-     Task taskArray[3] = {
-        Task("Task 1: Complete till Milestone 13 in Simulated Work"),
-        Task("Task 2: Complete LeetCode problems"),
-        Task("Task 3: write the journal ")
-        };
 
-     cout << "Tasks from Array of Objects:" << endl;
-    for (int i = 0; i < 3; i++)
-    {
-     cout << taskArray[i].getTaskName() << " [Completed: " << (taskArray[i].getTaskStatus() ? "Yes" : "No") << "]" << endl;
-    }
+int main()
+{
 
+
+
+    // Task *taskArray[3] = {
+    //     new Task("Task 1: Complete till Milestone 13 in Simulated Work"),
+    //     new Task("Task 2: Complete LeetCode problems"),
+    //     new Task("Task 3: write the journal ")};
     
+
+    // cout << "Tasks from Array of Objects:" << endl;
+    // for (int i = 0; i < 3; i++)
+    // {
+    //     cout << taskArray[i]->getTaskName() << " [Completed: " << (taskArray[i]->getTaskStatus() ? "Yes" : "No") << "]" << endl;
+    //     delete taskArray[i];
+    // }
+
     ToDoList myList;
     myList.addTask("Complete OOPs Assignment");
     myList.addTask("Complete all backlogs");
-
-    cout << "Tasks:" << endl;
-    myList.viewTasks();
     
+    cout << "Total tasks:" << myList.getTotalTasks() << endl;
+    cout << "Tasks Before deletion:" << endl;
+    myList.viewTasks();
+     cout << "====================================" << endl;
+    myList.markTaskCompleted(0);
+    cout << "Tasks After Marking them as completed:" << endl;
+    myList.viewTasks();
+    cout << "====================================" << endl;
+    myList.deleteTask(0);
+    cout << "Tasks After deletion:" << endl;
+    myList.viewTasks();
+
     // Task task1("Complete milestones!");
     // cout << task1.getTaskName() << endl;
     // cout << (task1.getTaskStatus()? "Completed":"Not Completed") << endl;
