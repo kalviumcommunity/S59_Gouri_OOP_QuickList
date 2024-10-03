@@ -10,12 +10,22 @@ private:
 
 public:
     // Task(string name):taskName(name),isTaskCompleted(false){}
+        Task() : taskName("Unnamed Task"), isTaskCompleted(false) 
+    {
+        cout << "Default Constructor called for Task: " << taskName << endl;
+    }
+    
     Task(string taskName)
     {
         this->taskName = taskName;
         this->isTaskCompleted = false;
     }
 
+
+~Task()
+{
+    cout<<"Destructor called for the task: "<<taskName<<endl;
+}
     void setIsTaskCompleted()
     {
         if (!this->isTaskCompleted){
@@ -48,6 +58,21 @@ private:
     static int totalTasksPending;
 
 public:
+
+    ToDoList() 
+    {
+        cout << "ToDoList created. Default Constructor called." << endl;
+    }
+    
+    ~ToDoList() 
+    {
+        for (Task *task : tasks) 
+        {
+            delete task;
+        }
+        cout << "ToDoList Destructor called. All tasks are deleted." << endl;
+    }
+    
     void addTask(string taskName)
     {
         Task *newTask = new Task(taskName);
@@ -135,6 +160,7 @@ int main()
     //     cout << taskArray[i]->getTaskName() << " [Completed: " << (taskArray[i]->getTaskStatus() ? "Yes" : "No") << "]" << endl;
     //     delete taskArray[i];
     // }
+
 
     ToDoList myList;
     myList.addTask("Complete OOPs Assignment");
