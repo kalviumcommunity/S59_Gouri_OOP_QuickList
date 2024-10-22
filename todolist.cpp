@@ -137,6 +137,14 @@ public:
         totalTasksPending++;
     }
 
+    void addTask(string taskName)
+    {
+        Task*newTask=new Task(taskName);
+        tasks.push_back(newTask);
+        totalTasks++;
+        totalTasksPending++;
+    }
+
     void deleteTask(int index)
     {
         if (index >= 0 && index < tasks.size())
