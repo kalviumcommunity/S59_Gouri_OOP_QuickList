@@ -4,13 +4,12 @@ using namespace std;
 
 class Task
 {
-private:
+protected:
     string taskName;
     bool isTaskCompleted;
 
 public:
-    // Task(string name):taskName(name),isTaskCompleted(false){}
-        Task() : taskName("Unnamed Task"), isTaskCompleted(false) 
+    Task() : taskName("Unnamed Task"), isTaskCompleted(false) 
     {
         cout << "Default Constructor called for Task: " << taskName << endl;
     }
@@ -21,21 +20,17 @@ public:
         this->isTaskCompleted = false;
     }
 
-
-~Task()
-{
-    cout<<"Destructor called for the task: "<<taskName<<endl;
-}
-    void setIsTaskCompleted()
+    virtual ~Task()
     {
-        if (!this->isTaskCompleted){
-        this->isTaskCompleted = true;
-        }
+        cout << "Destructor called for the task: " << taskName << endl;
     }
 
-    void setTask(string newTaskName)
+    void setIsTaskCompleted()
     {
-        this->taskName = newTaskName;
+        if (!this->isTaskCompleted)
+        {
+            this->isTaskCompleted = true;
+        }
     }
 
     string getTaskName() const
@@ -49,6 +44,69 @@ public:
     }    
 };
 
+class PriorityTask : public Task
+{
+private:
+    int priorityLevel;
+
+public:
+    PriorityTask() : Task("Unnamed Priority Task"), priorityLevel(2)
+    {
+        cout << "PriorityTask Default Constructor called." << endl;
+    }
+    
+    PriorityTask(string name, int priority) : Task(name), priorityLevel(priority)
+    {
+        cout << "PriorityTask Constructor called for Task: " << taskName << " with Priority: " << priorityLevel << endl;
+    }
+
+    ~PriorityTask()
+    {
+        cout << "Destructor called for PriorityTask: " << taskName << endl;
+    }
+
+    void setPriority(int level)
+    {
+        if (level >= 1 && level <= 3)
+            priorityLevel = level;
+        else
+            cout << "Invalid priority level. Set it to 1 (High), 2 (Medium), or 3 (Low)." << endl;
+    }
+
+    int getPriority() const
+    {
+        return priorityLevel;
+    }
+};
+
+class RecurringTask : public PriorityTask
+{
+private:
+    int recurrenceInterval; 
+
+public:
+    RecurringTask(string name, int priority, int interval)
+        : PriorityTask(name, priority), recurrenceInterval(interval) 
+    {
+        cout << "RecurringTask Constructor called for Task: " << taskName << " with Interval: " << recurrenceInterval << " days." << endl;
+    }
+
+    ~RecurringTask()
+    {
+        cout << "Destructor called for RecurringTask: " << taskName << endl;
+    }
+
+    int getRecurrenceInterval() const
+    {
+        return recurrenceInterval;
+    }
+
+    void setRecurrenceInterval(int interval)
+    {
+        recurrenceInterval = interval;
+    }
+};
+
 class ToDoList
 {
 private:
@@ -58,7 +116,6 @@ private:
     static int totalTasksPending;
 
 public:
-
     ToDoList() 
     {
         cout << "ToDoList created. Default Constructor called." << endl;
@@ -66,16 +123,15 @@ public:
     
     ~ToDoList() 
     {
-        for (Task *task : tasks) 
+        for (Task *task : tasks)
         {
             delete task;
         }
         cout << "ToDoList Destructor called. All tasks are deleted." << endl;
     }
-    
-    void addTask(string taskName)
+
+    void addTask(Task *newTask)
     {
-        Task *newTask = new Task(taskName);
         tasks.push_back(newTask);
         totalTasks++;
         totalTasksPending++;
@@ -85,10 +141,13 @@ public:
     {
         if (index >= 0 && index < tasks.size())
         {
-             if (tasks[index]->getTaskStatus()) {  
-                totalTasksCompleted--;            
-            } else {
-                totalTasksPending--;              
+            if (tasks[index]->getTaskStatus())
+            {
+                totalTasksCompleted--;
+            }
+            else
+            {
+                totalTasksPending--;
             }
             totalTasks--;
             delete (tasks[index]);
@@ -98,17 +157,19 @@ public:
         {
             cout << "Invalid index" << endl;
         }
-
-
     }
 
-    void markTaskCompleted(int index) {
-        if (index >= 0 && index < tasks.size() && !tasks[index]->getTaskStatus()) {
-            tasks[index]->setIsTaskCompleted();  
-            totalTasksCompleted++;               
-            totalTasksPending--;                 
-        } else {
-            cout << "Invalid index or task already completed" << endl; 
+    void markTaskCompleted(int index)
+    {
+        if (index >= 0 && index < tasks.size() && !tasks[index]->getTaskStatus())
+        {
+            tasks[index]->setIsTaskCompleted();
+            totalTasksCompleted++;
+            totalTasksPending--;
+        }
+        else
+        {
+            cout << "Invalid index or task already completed" << endl;
         }
     }
 
@@ -118,11 +179,24 @@ public:
         for (Task *task : tasks)
         {
             cout << i + 1 << ". " << task->getTaskName() << " [Completed: " << (task->getTaskStatus() ? "Yes" : "No") << "]" << endl;
+
+            PriorityTask *pTask = dynamic_cast<PriorityTask *>(task);
+            if (pTask)
+            {
+                cout << "   -> Priority Level: " << pTask->getPriority() << endl;
+            }
+
+            RecurringTask *rTask = dynamic_cast<RecurringTask *>(task);
+            if (rTask)
+            {
+                cout << "   -> Recurrence Interval: " << rTask->getRecurrenceInterval() << " days" << endl;
+            }
+
             i++;
         }
     }
 
-     static int getTotalTasks()
+    static int getTotalTasks()
     {
         return totalTasks;
     }
@@ -142,45 +216,19 @@ int ToDoList::totalTasks = 0;
 int ToDoList::totalTasksCompleted = 0;
 int ToDoList::totalTasksPending = 0;
 
-
 int main()
 {
-
-
-
-    // Task *taskArray[3] = {
-    //     new Task("Task 1: Complete till Milestone 13 in Simulated Work"),
-    //     new Task("Task 2: Complete LeetCode problems"),
-    //     new Task("Task 3: write the journal ")};
-    
-
-    // cout << "Tasks from Array of Objects:" << endl;
-    // for (int i = 0; i < 3; i++)
-    // {
-    //     cout << taskArray[i]->getTaskName() << " [Completed: " << (taskArray[i]->getTaskStatus() ? "Yes" : "No") << "]" << endl;
-    //     delete taskArray[i];
-    // }
-
-
     ToDoList myList;
-    myList.addTask("Complete OOPs Assignment");
-    myList.addTask("Complete all backlogs");
-    
-    cout << "Total tasks:" << myList.getTotalTasks() << endl;
-    cout << "Tasks Before deletion:" << endl;
-    myList.viewTasks();
-     cout << "====================================" << endl;
-    myList.markTaskCompleted(0);
-    cout << "Tasks After Marking them as completed:" << endl;
-    myList.viewTasks();
-    cout << "====================================" << endl;
-    myList.deleteTask(0);
-    cout << "Tasks After deletion:" << endl;
-    myList.viewTasks();
 
-    // Task task1("Complete milestones!");
-    // cout << task1.getTaskName() << endl;
-    // cout << (task1.getTaskStatus()? "Completed":"Not Completed") << endl;
+    myList.addTask(new Task("Complete OOP Assignment"));
+
+    myList.addTask(new PriorityTask("Prepare for Exams", 1));
+
+    myList.addTask(new RecurringTask("Give DBMS CA-5", 2, 30));
+
+    cout << "Total tasks: " << ToDoList::getTotalTasks() << endl;
+    cout << "Tasks List:" << endl;
+    myList.viewTasks();
 
     return 0;
 }
