@@ -25,6 +25,8 @@ public:
         cout << "Destructor called for the task: " << taskName << endl;
     }
 
+     virtual void displayTaskDetails() const = 0; 
+
     void setIsTaskCompleted()
     {
         if (!this->isTaskCompleted)
@@ -77,6 +79,12 @@ public:
     {
         return priorityLevel;
     }
+
+     void displayTaskDetails() const override
+    {
+        cout << "Task: " << taskName << " | Priority Level: " << priorityLevel 
+             << " | Completed: " << (isTaskCompleted ? "Yes" : "No") << endl;
+    }
 };
 
 class RecurringTask : public PriorityTask
@@ -104,6 +112,13 @@ public:
     void setRecurrenceInterval(int interval)
     {
         recurrenceInterval = interval;
+    }
+
+    void displayTaskDetails() const override
+    {
+        cout << "Task: " << getTaskName() << " | Priority: " << getPriority() 
+             << " | Recurrence Interval: " << recurrenceInterval 
+             << " days | Completed: " << (getTaskStatus() ? "Yes" : "No") << endl;
     }
 };
 
@@ -139,7 +154,7 @@ public:
 
     void addTask(string taskName)
     {
-        Task*newTask=new Task(taskName);
+        Task*newTask=new PriorityTask(taskName,2);
         tasks.push_back(newTask);
         totalTasks++;
         totalTasksPending++;
@@ -183,25 +198,29 @@ public:
 
     void viewTasks() const
     {
-        int i = 0;
-        for (Task *task : tasks)
+         for (const Task *task : tasks)
         {
-            cout << i + 1 << ". " << task->getTaskName() << " [Completed: " << (task->getTaskStatus() ? "Yes" : "No") << "]" << endl;
-
-            PriorityTask *pTask = dynamic_cast<PriorityTask *>(task);
-            if (pTask)
-            {
-                cout << "   -> Priority Level: " << pTask->getPriority() << endl;
-            }
-
-            RecurringTask *rTask = dynamic_cast<RecurringTask *>(task);
-            if (rTask)
-            {
-                cout << "   -> Recurrence Interval: " << rTask->getRecurrenceInterval() << " days" << endl;
-            }
-
-            i++;
+            task->displayTaskDetails(); 
         }
+        // int i = 0;
+        // for (Task *task : tasks)
+        // {
+        //     cout << i + 1 << ". " << task->getTaskName() << " [Completed: " << (task->getTaskStatus() ? "Yes" : "No") << "]" << endl;
+
+        //     PriorityTask *pTask = dynamic_cast<PriorityTask *>(task);
+        //     if (pTask)
+        //     {
+        //         cout << "   -> Priority Level: " << pTask->getPriority() << endl;
+        //     }
+
+        //     RecurringTask *rTask = dynamic_cast<RecurringTask *>(task);
+        //     if (rTask)
+        //     {
+        //         cout << "   -> Recurrence Interval: " << rTask->getRecurrenceInterval() << " days" << endl;
+        //     }
+
+        //     i++;
+        // }
     }
 
     static int getTotalTasks()
@@ -228,7 +247,7 @@ int main()
 {
     ToDoList myList;
 
-    myList.addTask(new Task("Complete OOP Assignment"));
+    myList.addTask(new PriorityTask("Complete OOP Assignment",2));
 
     myList.addTask(new PriorityTask("Prepare for Exams", 1));
 
