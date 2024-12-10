@@ -248,7 +248,9 @@ int main()
 
     myList.addTask(new RecurringTask("Give DBMS CA-5", 2, 30));
 
-    cout << "Total tasks: " << TaskStatistics::getTotalTasks() << endl;
+    myList.addTask(new CollaborativeTask("Team Presentation", "Alice"));
+
+   
     cout << "Tasks List:" << endl;
     myList.viewTasks();
 
