@@ -14,11 +14,8 @@ public:
         cout << "Default Constructor called for Task: " << taskName << endl;
     }
     
-    Task(string taskName)
-    {
-        this->taskName = taskName;
-        this->isTaskCompleted = false;
-    }
+   
+    Task(string taskName) : taskName(taskName), isTaskCompleted(false) {}
 
     virtual ~Task()
     {
@@ -122,13 +119,42 @@ public:
     }
 };
 
+class TaskStatistics
+{
+private:
+    static int totalTasks;
+    static int totalTasksCompleted;
+    static int totalTasksPending;
+
+public:
+    static void incrementTotalTasks() { totalTasks++; totalTasksPending++; }
+    static void decrementTotalTasks(bool isCompleted)
+    {
+        totalTasks--;
+        if (isCompleted)
+            totalTasksCompleted--;
+        else
+            totalTasksPending--;
+    }
+    static void markTaskCompleted()
+    {
+        totalTasksCompleted++;
+        totalTasksPending--;
+    }
+    static int getTotalTasks() { return totalTasks; }
+    static int getTotalTasksCompleted() { return totalTasksCompleted; }
+    static int getTotalTasksPending() { return totalTasksPending; }
+};
+
+int TaskStatistics::totalTasks = 0;
+int TaskStatistics::totalTasksCompleted = 0;
+int TaskStatistics::totalTasksPending = 0;
+
 class ToDoList
 {
 private:
     vector<Task *> tasks;
-    static int totalTasks;
-    static int totalTasksCompleted;
-    static int totalTasksPending;
+    
 
 public:
     ToDoList() 
@@ -148,32 +174,17 @@ public:
     void addTask(Task *newTask)
     {
         tasks.push_back(newTask);
-        totalTasks++;
-        totalTasksPending++;
+        TaskStatistics::incrementTotalTasks();
     }
 
-    void addTask(string taskName)
-    {
-        Task*newTask=new PriorityTask(taskName,2);
-        tasks.push_back(newTask);
-        totalTasks++;
-        totalTasksPending++;
-    }
 
     void deleteTask(int index)
     {
         if (index >= 0 && index < tasks.size())
         {
-            if (tasks[index]->getTaskStatus())
-            {
-                totalTasksCompleted--;
-            }
-            else
-            {
-                totalTasksPending--;
-            }
-            totalTasks--;
-            delete (tasks[index]);
+            bool isCompleted = tasks[index]->getTaskStatus();
+            TaskStatistics::decrementTotalTasks(isCompleted);
+            delete tasks[index];
             tasks.erase(tasks.begin() + index);
         }
         else
@@ -187,8 +198,7 @@ public:
         if (index >= 0 && index < tasks.size() && !tasks[index]->getTaskStatus())
         {
             tasks[index]->setIsTaskCompleted();
-            totalTasksCompleted++;
-            totalTasksPending--;
+            TaskStatistics::markTaskCompleted();
         }
         else
         {
@@ -202,46 +212,10 @@ public:
         {
             task->displayTaskDetails(); 
         }
-        // int i = 0;
-        // for (Task *task : tasks)
-        // {
-        //     cout << i + 1 << ". " << task->getTaskName() << " [Completed: " << (task->getTaskStatus() ? "Yes" : "No") << "]" << endl;
 
-        //     PriorityTask *pTask = dynamic_cast<PriorityTask *>(task);
-        //     if (pTask)
-        //     {
-        //         cout << "   -> Priority Level: " << pTask->getPriority() << endl;
-        //     }
-
-        //     RecurringTask *rTask = dynamic_cast<RecurringTask *>(task);
-        //     if (rTask)
-        //     {
-        //         cout << "   -> Recurrence Interval: " << rTask->getRecurrenceInterval() << " days" << endl;
-        //     }
-
-        //     i++;
-        // }
-    }
-
-    static int getTotalTasks()
-    {
-        return totalTasks;
-    }
-
-    static int getTotalTasksCompleted()
-    {
-        return totalTasksCompleted;
-    }
-
-    static int getTotalTasksPending()
-    {
-        return totalTasksPending;
     }
 };
 
-int ToDoList::totalTasks = 0;
-int ToDoList::totalTasksCompleted = 0;
-int ToDoList::totalTasksPending = 0;
 
 int main()
 {
@@ -253,9 +227,18 @@ int main()
 
     myList.addTask(new RecurringTask("Give DBMS CA-5", 2, 30));
 
-    cout << "Total tasks: " << ToDoList::getTotalTasks() << endl;
+    cout << "Total tasks: " << TaskStatistics::getTotalTasks() << endl;
     cout << "Tasks List:" << endl;
     myList.viewTasks();
+
+    myList.markTaskCompleted(0);
+    cout << "\nAfter marking task 1 as completed:" << endl;
+    myList.viewTasks();
+
+    cout << "\nStatistics:" << endl;
+    cout << "Total Tasks: " << TaskStatistics::getTotalTasks() << endl;
+    cout << "Completed Tasks: " << TaskStatistics::getTotalTasksCompleted() << endl;
+    cout << "Pending Tasks: " << TaskStatistics::getTotalTasksPending() << endl;
 
     return 0;
 }
