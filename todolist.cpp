@@ -119,6 +119,27 @@ public:
     }
 };
 
+class CollaborativeTask : public Task
+{
+private:
+    string collaboratorName;
+
+public:
+    CollaborativeTask(string taskName, string collaborator)
+        : Task(taskName), collaboratorName(collaborator) {}
+
+    ~CollaborativeTask()
+    {
+        cout << "Destructor called for CollaborativeTask: " << taskName << endl;
+    }
+
+    void displayTaskDetails() const override
+    {
+        cout << "Task: " << taskName << " | Collaborator: " << collaboratorName
+             << " | Completed: " << (isTaskCompleted ? "Yes" : "No") << endl;
+    }
+};
+
 class TaskStatistics
 {
 private:
